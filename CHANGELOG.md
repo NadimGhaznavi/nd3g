@@ -5,7 +5,9 @@
 ### Summary
 
 Established Nd3G's initial engineering setup with pinned BMForge baseline
-skills, project context and application metadata.
+skills, project context and application metadata. Added an architecture
+proposal for skill-guided parameter and learning-module experiments,
+with explicit execution, scoring and BMForge adoption boundaries.
 
 ### Analysis
 
@@ -14,6 +16,11 @@ skills, project context and application metadata.
   - Report is a PR
 
 ### Added
+
+- Propose the Nd3G architecture in Markdown and Mermaid, including
+  use cases and analysis classes, complete-candidate contracts,
+  runtime skills, simulation integrity, recovery and a BMForge-first
+  iteration plan. This is analysis only; no runtime is implemented.
 
 - Install the four baseline BMForge skills with their local manager and lock
   file, pinned to revision `29a100c39997349ecfd40e190319aeb5018ffab8`.
