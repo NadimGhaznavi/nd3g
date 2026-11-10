@@ -13,7 +13,11 @@ with explicit execution, scoring and BMForge adoption boundaries.
 
 - Performed analysis on the structure and components of Ax3l and SnakeLab
   to identify core components required for Nd3g.
-  - Report is a PR
+- Reviewed analysis. Requested additonal refinements:
+  - Reporting is a first class citizen
+  - Sandboxing is a key subsystem
+    - How to ensure generated code is safe before integrating it into a simulation run?
+
 
 ### Added
 
