@@ -8,6 +8,8 @@ Established Nd3G's initial engineering setup with pinned BMForge baseline
 skills, project context and application metadata. Added an architecture
 proposal for skill-guided parameter and learning-module experiments,
 with explicit execution, scoring and BMForge adoption boundaries.
+The second draft makes web inspection essential, expands generated-code
+risk mitigation and corrects the rejected-candidate Mermaid sequence.
 
 ### Analysis
 
@@ -27,3 +29,14 @@ with explicit execution, scoring and BMForge adoption boundaries.
 - Document Nd3G's purpose, package, domain and selected skills in `AGENTS.md`.
 - Add initial application metadata with the `Application` CMDB subtype and
   release, metadata-checking and deployment-disabled lifecycle scaffolding.
+
+### Changed
+
+- Revise the architecture proposal with required integrated web reporting,
+  reviewed working assumptions, a practical test-before-activation gate,
+  containment options and separate score-integrity considerations.
+
+### Fixed
+
+- Replace the Mermaid sequence-message semicolon that was parsed as a
+  statement separator, preventing the rejected-candidate diagram from rendering.

@@ -92,9 +92,11 @@ The protected host owns observation encoding, action vocabulary, game rules, see
 
 ## Admission stages
 
+These are the summary gates; [Generated-code risk mitigation](07-generated-code-risk.md) defines the test matrix, limitations and practical execution options.
+
 1. **Non-executing checks:** complete manifest, exact field types, finite numbers, allowlisted slots/import inventory, syntax parsing, artifact size and canonical paths. These reduce accidents; they are not containment.
-2. **Restricted import/contract checks:** import and exercise modules only inside the same restriction boundary used for candidate runs. Check incompatible tensor dimensions, replay boundaries, numerical failures and forbidden side effects.
-3. **Combined smoke evaluation:** all four modules plus parameters run together on bounded fixtures. Verify initialization, one learning cycle, action validity, deterministic baseline transitions and termination.
-4. **Freeze and attest:** trusted host records results against the exact artifact/contract/environment digests. Only the host can issue an admission record.
+2. **Restricted import and module checks:** import and exercise modules only inside the selected restriction boundary. Check interfaces, tensor dimensions, replay boundaries, numerical failures and tested forbidden side effects. Passing those tests is not proof of harmlessness.
+3. **Combined smoke evaluation:** all four modules plus parameters run together on bounded fixtures. Verify initialization, a learning cycle, action validity, baseline transition behavior and termination. Use the same declared runtime/dependency identity intended for the full simulation.
+4. **Freeze and admit:** the trusted supervisor records test outcomes and binds them to exact artifact/contract/environment digests. Candidate-written output cannot issue its own admission record. Recheck those identities before activation in a fresh bounded run; do not overwrite installed application modules.
 
 Admission failures remain distinct from poor scientific results. Record syntax/contract/numerical/resource/policy failures and repair cost, without assigning them a made-up high score. The last completed champion remains available.
