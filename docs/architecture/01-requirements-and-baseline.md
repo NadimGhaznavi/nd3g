@@ -10,7 +10,7 @@
 | R2 | Use the already-deployed Qwen 3.5 4B through LlamaSrv. | An inference boundary calls the existing llama.cpp endpoint; Nd3G does not own model deployment. |
 | R3 | A systemd-managed Nd3G process coordinates LLM and simulations. | Experiment-controller service owns the outer loop and durable experiment history. |
 | R4 | Integrate SnakeLab functionality into Nd3G, with its own simulation-server systemd process. | Same application/repository, separate process and responsibility boundary. No dependency on a running legacy SnakeLab service. |
-| R5 | Reuse the real-time TUI, considering other interfaces. | Adapt the existing Textual client to Nd3G contracts first; assess a browser interface separately. |
+| R5 | Reuse the real-time TUI, considering other interfaces. | Adapt the existing Textual client for live simulation observation alongside the required web reporting server. |
 | R6 | Let the LLM configure current hyperparameters and potentially more. | A versioned parameter catalogue covers the current tuning surface; extensions require deliberate contract changes. |
 | R7 | Let the LLM write selected simulation modules, such as RNNModel, Trainer, ReplayMemory and RewardFunction. | Named writable module slots with stable contracts, bounded artifacts and executable admission checks. |
 | R8 | Submit only after all configurable elements have been set. | Freeze a complete candidate; reject missing, stale or invalid elements before submission. |
@@ -18,6 +18,8 @@
 | R10 | Explore skills with supporting tools rather than simply reusing prompt architecture. | Focused runtime skills with bounded context, explicit outputs and host-enforced tools. |
 | R11 | Build through BMForge, introducing new components there before deploying skills to Nd3G. | BMForge-first specification and acceptance-test work, followed by explicit pinning and consumer implementation. |
 | R12 | Produce analysis, Mermaid analysis classes and documentation in an Nd3G PR targeting dev. | This documentation set; no executable implementation. |
+| R13 | Include integrated web reporting like Ax3l, essential for inspecting the running system during development and troubleshooting; visualizations are nice to have. | A reporting service uses Nd3G's domain records and live service-query interfaces. State, decisions, errors and validation evidence come before optional charts. |
+| R14 | Explore mitigation for AI-generated simulation code, including testing the module before deploying it. | A staged test/admission gate precedes candidate activation. Test execution itself is restricted, and testing, containment and score integrity are evaluated separately. |
 
 ## Observed baseline
 
@@ -45,7 +47,9 @@ This is nine tunable values, with epsilon and reward values currently proposed a
 
 The current schema fixes other fields, including board dimensions, initial snake length, move-limit multiplier, several event rewards, model layers/dropout, replay capacity, target-update rate, gradient clipping and epsilon minimum. The seed is controller-managed. Keep those fixed in the first comparable baseline. Candidate extensions include layers, dropout, replay capacity, optimizer choice and target-update strategy; they require a reviewed search-space/contract revision and resource bounds, not an unrestricted configuration dictionary.
 
-## Proposed assumptions, not additional user requirements
+## Reviewed working assumptions
+
+The user reviewed these assumptions on 2026-11-10 and said they look solid. Keep them as the working baseline; confirmation of these assumptions does not select an isolation technology, approve implementation or make untested capabilities real.
 
 | ID | Working assumption | Consequence if changed |
 | --- | --- | --- |
@@ -58,4 +62,4 @@ The current schema fixes other fields, including board dimensions, initial snake
 
 ## Out of scope
 
-No distributed training, generic agent marketplace, arbitrary shell tool, online dependency installation, new LLM deployment, automatic deployment of winning code, automatic changes to BMForge pins, or compatibility layer preserving legacy application APIs. Existing TUI behavior can be deliberately adapted to a clean Nd3G contract. Historical experiments remain historical; any import of old databases is separate work.
+No distributed training, generic agent marketplace, arbitrary shell tool, online dependency installation, new LLM deployment, automatic deployment of winning code into installed application services, automatic changes to BMForge pins, or compatibility layer preserving legacy application APIs. Candidate activation for a bounded simulation is distinct from an application release. Existing TUI behavior can be deliberately adapted to a clean Nd3G contract. Historical experiments remain historical; any import of old databases is separate work. The web reporting server is in scope; elaborate visualizations and browser-based experiment controls are not required for the first slice.

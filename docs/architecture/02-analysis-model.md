@@ -26,6 +26,7 @@ Primary actor: the **researcher**, who starts/stops an experiment, chooses its p
 | UC4 Assess a result | Completed result is compared under the experiment policy; champion decision is recorded. | Tie/lower score retains the champion; incomparable/failed runs are excluded. |
 | UC5 Observe/control a run | TUI shows progress and accepts permitted pause/resume/cancel controls. | Missed telemetry triggers snapshot refresh, not invented completion. |
 | UC6 Recover an experiment | A service restarts or a response is lost; durable state resolves what happened. | Unresolvable outcome stops that experiment with actionable status. |
+| UC7 Inspect and diagnose the system | Researcher opens the web report; current activity, persisted history, candidate/test evidence and failures are inspectable. | A stopped service or stale observation is labeled explicitly while available historical evidence remains readable. |
 
 ## Outer-loop analysis classes
 
@@ -240,7 +241,7 @@ sequenceDiagram
         S-->>P: New revision N+1
         P->>V: Revalidate changed content and all dependent contracts
     else Budget exhausted
-        P->>J: Record rejected candidate; retain champion
+        P->>J: Record rejected candidate and retain champion
     end
     Note over P,J: No simulation submission and no fabricated score
 ```
@@ -267,3 +268,65 @@ sequenceDiagram
 ```
 
 No diagram implies that today's SnakeLab already provides durable idempotency, a restart-safe queue or candidate isolation. Those are explicit Nd3G contract additions.
+
+## UC7: integrated reporting responsibilities
+
+```mermaid
+classDiagram
+    class ReportingPages {
+        <<boundary>>
+        requestReport()
+        displayEvidence()
+    }
+    class InspectExperiment {
+        <<control>>
+        assembleReport()
+        distinguishFreshness()
+    }
+    class SystemStatusAccess {
+        <<boundary>>
+        queryController()
+        querySimulation()
+    }
+    class ExperimentEvidenceAccess {
+        <<boundary>>
+        readHistory()
+        readValidationEvidence()
+    }
+    class ReportSnapshot {
+        <<entity>>
+        observedAt
+        sourceStatus
+        experimentId
+        runId
+    }
+    ReportingPages --> InspectExperiment : requests
+    InspectExperiment --> SystemStatusAccess : obtains bounded live observations
+    InspectExperiment --> ExperimentEvidenceAccess : reads persisted evidence
+    InspectExperiment --> ReportSnapshot : assembles
+    ReportingPages --> ReportSnapshot : presents
+```
+
+**ReportingPages** translates requests and presents results, including safely escaped code/log text. **InspectExperiment** assembles domain views without changing the experiment. **SystemStatusAccess** reports the outcome and observation time of each live query, including timeout. **ExperimentEvidenceAccess** uses the application's named read-only data operations for history, candidate provenance, test reports and failures. **ReportSnapshot** carries values and freshness metadata. These analysis roles do not mandate a new generic reporting framework or a separate class for every page.
+
+```mermaid
+sequenceDiagram
+    actor R as Researcher
+    participant P as ReportingPages
+    participant I as InspectExperiment
+    participant H as ExperimentEvidenceAccess
+    participant S as SystemStatusAccess
+    R->>P: Inspect experiment or failed candidate
+    P->>I: Request bounded report
+    I->>H: Read persisted progress and test evidence
+    H-->>I: Records with timestamps and identities
+    I->>S: Query controller and simulation status
+    alt Services respond
+        S-->>I: Live observations with observed times
+    else Service unavailable or query timed out
+        S-->>I: Explicit unavailable status for that service
+    end
+    I-->>P: Report with separate live and persisted sections
+    P-->>R: Inspectable state and failure evidence
+    Note over P,S: A report refresh does not mutate or delay the experiment
+```
