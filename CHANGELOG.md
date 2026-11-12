@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-11-12 @ 05:35
+
 ### Summary
 
 Established Nd3G's initial engineering setup with pinned BMForge baseline
