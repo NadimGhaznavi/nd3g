@@ -24,6 +24,7 @@ generated-code slot.
   Minimal Mistakes theme, Mermaid rendering, MyCount and English metadata.
 - Add the owner-supplied `pages/images/nd3g.png` project logo, shared by the
   masthead and documentation homepage.
+- Fixed sidebar.
 
 ### Changed
 
