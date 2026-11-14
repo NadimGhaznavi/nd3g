@@ -1,6 +1,13 @@
-# Use cases and analysis model
+---
+title: "Use cases and analysis model"
+lang: en
+locale: en-US
+language_name: English
+translation_key: nd3g-architecture-analysis-model
+permalink: /pages/architecture/analysis-model/
+---
 
-[Overview](README.md) · [Skills and candidates](03-skills-and-candidates.md)
+[Overview]({{ site.baseurl }}{% link pages/architecture/index.md %}) · [Skills and candidates]({{ site.baseurl }}{% link pages/architecture/03-skills-and-candidates.md %})
 
 ## Modeling convention
 
@@ -12,7 +19,7 @@ The Unified Process analysis model describes logical responsibilities needed to 
 | `boundary` | Interface | Mediates interaction with an actor, external technology or another responsibility boundary. |
 | `entity` | Entity | Holds experiment data and results independently of transport or persistence. |
 
-This is a project mapping, not a claim that every implementation adapter must be a Unified Process analysis class. Later design may split or combine responsibilities. `RNNModel.py` and its fellow writable slots are design-level extension contracts, not automatically entity classes because they contain model data. Systemd and socket topology appear in the separate [runtime view](04-runtime-and-integrity.md).
+This is a project mapping, not a claim that every implementation adapter must be a Unified Process analysis class. Later design may split or combine responsibilities. `RNNModel.py` and its fellow writable slots are design-level extension contracts, not automatically entity classes because they contain model data. Systemd and socket topology appear in the separate [runtime view]({{ site.baseurl }}{% link pages/architecture/04-runtime-and-integrity.md %}).
 
 ## Actors and use cases
 
@@ -153,6 +160,25 @@ classDiagram
         applyGameRules()
         deriveProvisionalScore()
     }
+    class SelectBehaviour {
+        <<control>>
+        applyEpsilonAndNice()
+        consumeEpisodeFeedback()
+    }
+    class ExplorationConfiguration {
+        <<entity>>
+        implementationDigest
+        niceProbability
+        detourLength
+        activationPolicy
+    }
+    class ExplorationState {
+        <<entity>>
+        enabled
+        remainingSteps
+        stagnationHistory
+        rngState
+    }
     class SimulationEvidenceStore {
         <<boundary>>
         saveTemporaryRecords()
@@ -200,6 +226,10 @@ classDiagram
     ManageRun --> RunEnvironmentAccess : controls lifetime
     RunEnvironmentAccess --> ExecuteSimulation : launches inside sandbox
     ExecuteSimulation --> EvaluateGame : runs static game
+    ExecuteSimulation --> SelectBehaviour : requests final action and sends episode score
+    SelectBehaviour --> EvaluateGame : reads static collision facts
+    SelectBehaviour --> ExplorationConfiguration : follows frozen settings
+    SelectBehaviour --> ExplorationState : advances run-local state
     ExecuteSimulation --> SimulationEvidenceStore : persists temporarily
     ExecuteSimulation --> LiveRunView : publishes provisionally
     RunEnvironmentAccess --> ArtifactBundle : captures externally
@@ -211,9 +241,11 @@ classDiagram
     Run "1" --> "0..1" ArtifactBundle : finalized evidence
 ```
 
-**ManageRun** owns the durable lifecycle outside the disposable environment. **RunEnvironmentAccess** hides the selected launcher/capture/disposal technology, not uncertain outcomes. **ExecuteSimulation**, **EvaluateGame**, **SimulationEvidenceStore** and **LiveRunView** are static simulation responsibilities inside the environment. They use temporary MariaDB and invoke only the allowed generated slots. Neither a MariaDB process nor a systemd unit is itself an analysis class.
+**ManageRun** owns the durable lifecycle outside the disposable environment. **RunEnvironmentAccess** hides the selected launcher/capture/disposal technology, not uncertain outcomes. **ExecuteSimulation**, **EvaluateGame**, **SelectBehaviour**, **SimulationEvidenceStore** and **LiveRunView** are static simulation responsibilities inside the environment. They use temporary MariaDB and invoke only the allowed generated slots. Neither a MariaDB process nor a systemd unit is itself an analysis class.
 
-**InspectRunArtifacts** applies the selected inspection policy to externally captured immutable data; **ResultArchive** owns the persistent import and deduplication contract. Domain interfaces own SQL. Inspection acceptance, successful import and cleanup are distinct decisions/facts. Temporary records and ZMQ observations do not bypass this boundary. **EvaluateGame** owns legal transitions and food-count scoring in the static code, but shared-process Python can still alter runtime state; [result integrity](04-runtime-and-integrity.md#trusted-scoring-and-generated-code) remains an explicit design concern rather than an assumed guarantee.
+**InspectRunArtifacts** applies the selected inspection policy to externally captured immutable data; **ResultArchive** owns the persistent import and deduplication contract. Domain interfaces own SQL. Inspection acceptance, successful import and cleanup are distinct decisions/facts. Temporary records and ZMQ observations do not bypass this boundary. **EvaluateGame** owns legal transitions and food-count scoring in the static code, but shared-process Python can still alter runtime state; [result integrity]({{ site.baseurl }}{% link pages/architecture/04-runtime-and-integrity.md %}#trusted-scoring-and-generated-code) remains an explicit design concern rather than an assumed guarantee.
+
+**SelectBehaviour** composes the ordinary epsilon-greedy suggestion with configured epsilonNice and returns the final executed action. Static simulation orchestration supplies episode scores to its activation logic and records that final action in replay. **ExplorationConfiguration** is immutable candidate input; **ExplorationState** is mutable state confined to one simulation, not a new service or an LLM-editable record. The [epsilonNice contract]({{ site.baseurl }}{% link pages/architecture/08-exploration-and-epsilon-nice.md %}) specifies next-step arming, collision alternatives and source-specific reset nuances. These analysis roles do not silently introduce a fifth writable code slot.
 
 ## UC2–UC4: normal experiment iteration
 
@@ -397,3 +429,7 @@ sequenceDiagram
     P-->>R: Inspectable state and failure evidence
     Note over P,S: A report refresh does not mutate or delay the experiment
 ```
+
+---
+
+[Documentation index]({{ site.baseurl }}{% link index.md %})

@@ -8,6 +8,9 @@
 - Application metadata: `nd3g/constants/DNd3G.py`; CMDB subtype: `Application`.
 - Selected skills: `bmforge-project`, `bmforge-constants`,
   `bmforge-localization`, `bmforge-installation` and `bmforge-github-pages`.
+- Documentation: `index.md` is the website entry point; architecture guides live
+  under `pages/architecture/`. The shared theme handles Mermaid rendering.
+- Project logo: `pages/images/nd3g.png`.
 
 The repository currently contains the initial development scaffold. Game
 behaviour, LLM integration and runtime requirements remain to be specified.
