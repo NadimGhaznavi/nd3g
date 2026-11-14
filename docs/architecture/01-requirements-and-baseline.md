@@ -9,7 +9,7 @@
 | R1 | Preserve the experiment: can an LLM improve Snake AI high scores? | Separate candidate generation from authoritative run scoring and comparison. |
 | R2 | Use the already-deployed Qwen 3.5 4B through LlamaSrv. | An inference boundary calls the existing llama.cpp endpoint; Nd3G does not own model deployment. |
 | R3 | A systemd-managed Nd3G process coordinates LLM and simulations. | Experiment-controller service owns the outer loop and durable experiment history. |
-| R4 | Integrate SnakeLab functionality into Nd3G, with its own simulation-server systemd process. | Same application/repository, separate process and responsibility boundary. No dependency on a running legacy SnakeLab service. |
+| R4 | Integrate SnakeLab functionality into Nd3G, with a separately managed simulation-server process. | Same application/repository; the latest decision scopes the simulation server to one disposable run environment rather than a permanent host daemon. Preserve systemd-managed lifecycle where appropriate to the selected sandbox. No dependency on a running legacy SnakeLab service. |
 | R5 | Reuse the real-time TUI, considering other interfaces. | Adapt the existing Textual client for live simulation observation alongside the required web reporting server. |
 | R6 | Let the LLM configure current hyperparameters and potentially more. | A versioned parameter catalogue covers the current tuning surface; extensions require deliberate contract changes. |
 | R7 | Let the LLM write selected simulation modules, such as RNNModel, Trainer, ReplayMemory and RewardFunction. | Named writable module slots with stable contracts, bounded artifacts and executable admission checks. |
@@ -20,12 +20,17 @@
 | R12 | Produce analysis, Mermaid analysis classes and documentation in an Nd3G PR targeting dev. | This documentation set; no executable implementation. |
 | R13 | Include integrated web reporting like Ax3l, essential for inspecting the running system during development and troubleshooting; visualizations are nice to have. | A reporting service uses Nd3G's domain records and live service-query interfaces. State, decisions, errors and validation evidence come before optional charts. |
 | R14 | Explore mitigation for AI-generated simulation code, including testing the module before deploying it. | A staged test/admission gate precedes candidate activation. Test execution itself is restricted, and testing, containment and score integrity are evaluated separately. |
+| R15 | Run the simulation server inside a fresh disposable environment for each simulation. | External lifecycle ownership creates, bounds, observes and disposes one environment per run; no reuse of learning or temporary database state. |
+| R16 | Include temporary MariaDB so the simulation uses its normal environment; inspect artifacts and then import into the persistent database. | Reuse versioned schema/data interfaces, capture a bounded result bundle, apply host-owned inspection and idempotent accepted-data import. |
+| R17 | Only designated modules are LLM-writable; static simulation code can publish game state over ZMQ to separate external consumers. | Protect the publisher/game/storage source from model edits; permit narrowly scoped observation channels to external TUI/reporting processes. |
+
+R15–R17 record the 2026-11-14 discussion and supersede earlier placement recommendations where they conflict. A particular container/VM technology and inspection algorithm have not been selected.
 
 ## Observed baseline
 
 Inspection is pinned to the revisions in the [source register](06-sources.md), not a claim about production state.
 
-- **Nd3G:** an initial scaffold with metadata and four pinned baseline skills: project, constants, localization and installation. There is no implemented game or LLM runtime to extend yet. The inspected remote had only `main`; establishing `dev` is a repository setup decision, not an architectural dependency.
+- **Nd3G:** an initial scaffold with metadata and four pinned baseline skills: project, constants, localization and installation. There is no implemented game or LLM runtime to extend yet. At the 2026-11-14 revision, proposal PR #1 is merged and `dev` and `main` both point to release 0.1.0 (`05bf7d7d34d5a34404927964aac0a5ced0b9191c`). This revision starts from that current `dev`, preserving the release history.
 - **BMForge:** standalone specifications, templates, frozen references and project-local pinned skills. Its role convention is `activity/`, `interface/`, `entity/`; it does not provide a shared runtime framework. Current Nd3G pins originate from BMForge `29a100c39997349ecfd40e190319aeb5018ffab8`.
 - **Ax3l:** the active loop selects one parameter or a prescribed pair, asks the model to propose a change, waits for a completed simulation and promotes only a strictly higher high score. It uses fresh conversations and numeric history. Its controller also contains seed rotation and restart reconciliation. Future Ax3l design notes must not be mistaken for this implemented behavior.
 - **SnakeLab:** validates complete simulation configuration, queues runs serially, constructs fresh learning state, records episodes and terminal results, and exposes control plus separate best-effort telemetry/completion streams. Run-status lookup currently depends on process-local run objects; persisted winning snapshots are separate. Repeated submit requests create new run IDs, even if a correlation ID is reused.
@@ -55,7 +60,7 @@ The user reviewed these assumptions on 2026-11-10 and said they look solid. Keep
 | --- | --- | --- |
 | A1 | One host and one active simulation initially. | Remote artifact transfer, authentication and competing resource allocation need additional design for multi-host or concurrent execution. |
 | A2 | Preserve current board, observation/action meanings, episode budget and seed policy for the baseline. | A changed environment or budget produces a distinct comparison cohort, not a directly comparable record. |
-| A3 | Retain MariaDB for durable experiment/run reporting, subject to component selection. | Another backend requires a separately approved BMForge component. No database is installed here. |
+| A3 | Retain MariaDB for durable experiment/run reporting. The latest decision also uses an isolated temporary instance per simulation. | Reuse the versioned simulation schema and data interfaces; temporary run data crosses an inspection/import boundary before persistent acceptance. No database is installed here. |
 | A4 | Each candidate begins from fresh weights, replay, optimizer and exploration state. | Warm starts would be a different experiment with checkpoint provenance and fairness implications. |
 | A5 | Generated Python may be defective or hostile even when produced locally. | Tests and production candidate execution both require the same reviewed restriction boundary. |
 | A6 | Human review is required for new contracts, dependencies and skill releases, not for each ordinary candidate within an approved experiment policy. | Per-candidate approval can be selected later, but should not be silently inserted into the automated experiment. |

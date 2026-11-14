@@ -2,6 +2,26 @@
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-11-14 @ 10:41
+
+### Summary
+
+Refined the architecture around disposable per-simulation environments with
+temporary MariaDB, external live observation and inspected result import.
+The proposal separates execution completion, accepted evidence and cleanup
+while preserving the existing experiment and BMForge-first approach.
+
+### Changed
+
+- Place the simulation server and temporary database inside a fresh environment
+  for every run, with controller, persistent database and reporting outside.
+- Specify artifact capture, inspection, idempotent accepted-data import and
+  disposal/recovery responsibilities without selecting a sandbox technology.
+- Keep game-state ZMQ publication in static non-LLM-writable simulation code,
+  with external TUI/report consumers and clearly labeled provisional data.
+- Update analysis classes, use-case diagrams, risk controls and acceptance
+  scenarios. This remains documentation only, not runtime implementation.
+
 ## [0.1.0] - 2026-11-12 @ 05:35
 
 ### Summary
