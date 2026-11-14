@@ -2,11 +2,11 @@ from typing import Final
 
 
 class DNd3G:
-    VERSION: Final[str] = "0.2.0"
+    VERSION: Final[str] = "0.2.1"
     CMDB_TYPE: Final[str] = "application"
     CMDB_SUBTYPE: Final[str] = "Application"
     CMDB_SUPPLIER: Final[str] = "Nadim-Daniel"
-    CMDB_CODENAME: Final[str] = "Mafdet"
+    CMDB_CODENAME: Final[str] = "Montu"
     CMDB_COMPONENTS = ()
     CMDB_DATABASES = ()
     # Declare every owned listener; runtime defaults must use these bindings.
