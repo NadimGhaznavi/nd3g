@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-11-14 @ 10:41
+
 ### Summary
 
 Refined the architecture around disposable per-simulation environments with
