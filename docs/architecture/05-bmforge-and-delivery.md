@@ -37,6 +37,7 @@ flowchart LR
 | Live telemetry | SnakeLab has PUB/SUB reference behavior; current BMForge REQ/REP skill does not cover it. | New telemetry specification for a static in-sandbox publisher and external TUI/report consumers, narrow permitted endpoints, framing, socket ownership, bounded queues, drops, per-run identity and snapshot reconciliation. |
 | Runtime task skills and inference client | No inspected BMForge component establishes this contract. | New component for task-package format, registry, narrow tool dispatch, bounded inference interaction, audit and model/skill evaluation. Do not assume the HTTP-server component supplies an inference client. |
 | Candidate artifacts and restricted execution | Generated module admission and isolation are new requirements. | Specify immutable inputs, whole-simulation environment lifecycle with temporary MariaDB, capture/inspection/import receipts and disposal, plus resource controls. Keep the launcher and persistent credentials outside. Select containment technology and inspection assurance before implementation; group capabilities sensibly rather than create a framework. |
+| Configurable exploration | AI Hydra documents and implements epsilonNice as an optional post-epsilon, score-stagnation-enabled detour layer; no Nd3G component is installed. | Specify a small application-owned exploration component in BMForge first: fixed reference behavior, probability/steps configuration, static collision/activation boundaries, RNG/state lifetime and telemetry/test contract. Keep MCTS/ATH recovery out of scope; a generated-code slot is a separate decision. |
 | Configurable learning modules | Current SnakeLab code is a reference, not a modular code-generation contract. | Nd3G-driven BMForge component for model/replay/trainer/reward slots and fixtures. Inventory existing PyTorch/NumPy needs explicitly; no arbitrary packages in candidates. |
 | TUI | Existing Textual client is useful source behavior, not a selected BMForge runtime inventory. | Specify the reused client boundary and approved dependencies before adaptation. Retain its real-time simulation role alongside required web inspection. |
 
@@ -50,10 +51,10 @@ Use-case-driven, architecture-centric and risk-first iterations avoid treating t
 
 | Stage | Narrow outcome | Exit evidence |
 | --- | --- | --- |
-| Inception | Agree on experiment scope, baseline, reporting requirement, success definition and writable slots. | R1–R17 traced; reviewed assumptions retained; open decisions assigned; baseline records identified. |
+| Inception | Agree on experiment scope, baseline, reporting requirement, success definition and writable slots. | R1–R18 traced; reviewed assumptions retained; open decisions assigned; baseline records identified. |
 | Elaboration A | Prove the LlamaSrv skill interaction and complete-candidate contract. | Representative Qwen parameter and code tasks measured for valid outputs, repair cost and context limits; no claim based on model size alone. |
 | Elaboration B | Evaluate the test/containment/score boundary on the intended host. | Baseline simulation and temporary MariaDB run in fresh environments; test capture, inspection/import recovery and full disposal. Run module tests and policy probes under the same limits. Select containment and inspection assurance after measuring feasibility; document residual risk. Code mutation stays disabled when required controls are absent. |
-| Construction A | Establish controller, simulation and reporting with trusted fixed learning modules. | Serial parameter-only loop creates and disposes an environment per simulation. Inspected import, current scoring, external ZMQ observation, web reports and restart reconciliation pass end to end. Reports remain useful after environment disposal. |
+| Construction A | Establish controller, simulation and reporting with trusted fixed learning modules. | Serial parameter-only loop creates and disposes an environment per simulation. Establish the unchanged Nice-disabled baseline, then the fixed epsilonNice component with bounded configuration and controlled fixtures. Inspected import, current scoring, external ZMQ observation, web reports and restart reconciliation pass end to end. Reports remain useful after environment disposal. |
 | Construction B | Enable bounded module variation incrementally. | Reward slot first after extraction tests; then model/replay/trainer with combined contract tests. Each slot has independent versioned fixtures. |
 | Construction C | Refine runtime skills using experiment evidence. | Compare parameter-only versus parameter-plus-code under declared budgets; inspect code and failed attempts, not only record wins. |
 | Transition | Complete and validate installation, operations and reproducibility. | Install/upgrade/uninstall, service helper, health, ownership/version records and operator documentation verified before authorized deployment. |
@@ -64,7 +65,7 @@ These are future implementation increments. This PR supplies analysis only and d
 
 | Scenario | Expected evidence | Requirements |
 | --- | --- | --- |
-| All current knobs represented | Nine current tunable values are explicitly resolved; fixed values and seed policy are separately identified. | R6, R8 |
+| All current knobs represented | Nine original Ax3l values remain explicitly resolved; epsilonNice selection/settings, fixed activation contract and seed policy are separately identified. | R6, R8 |
 | Missing or changed artifact | Missing slot, modified digest or stale validation prevents admission; previous champion stays intact. | R7, R8 |
 | Cross-module mismatch | Model/replay/trainer dimension or parameter incompatibility fails before a scored run. | R7, R8 |
 | Malformed/looping model response | Structured error and bounded repair/turn budget; no fabricated tool execution. | R2, R10 |
@@ -86,6 +87,9 @@ These are future implementation increments. This PR supplies analysis only and d
 | Inspection rejects output | Rejection and bounded evidence survive disposal; no champion promotion or fabricated zero-score success. | R1, R14, R16 |
 | Cleanup fails or controller restarts | External environment identity locates surviving resources; new launch is blocked until reconciled; accepted import is not undone. | R3, R15, R16 |
 | Static publisher and external viewers | LLM writes only named slots. External consumers validate bounded ZMQ payloads and label them provisional; no persistent DB credentials or direct temporary DB reads. | R7, R13, R17 |
+| epsilonNice gate and arming | Disabled/gated passthrough, boundary probabilities, next-step arming and exact detour length match the chosen contract. | R6, R8, R18 |
+| epsilonNice action and learning evidence | Only safe alternatives excluding the suggestion are sampled when available; fallback preserves the suggestion. Replay records the executed action and static collision semantics remain unchanged. | R1, R7, R18 |
+| epsilonNice state and observations | Score-based enable/disable, episode-boundary behavior, fresh run state, seeded choices, counter definitions and final partial-window capture are tested. No silent fifth code slot, ATH or MCTS dependency. | R9, R13, R15, R18 |
 
 ## Open decisions for architecture review
 
@@ -93,13 +97,13 @@ These are future implementation increments. This PR supplies analysis only and d
 2. **Resource policy:** choose CPU/GPU placement, hard limits, repair/turn budgets, maximum source size and admission capacity. LlamaSrv and simulation may contend for the same GPU; do not assume concurrent operation is free.
 3. **Experiment comparison:** confirm Ax3l's 1500-episode baseline and seed-rotation policy, and whether repeated confirmation runs should be a separate reporting cohort. Preserve the current high-score rule unless explicitly changed.
 4. **Runtime skill protocol:** verify actual llama.cpp/Qwen native tool and structured-output support, then select one explicit supported contract and context budget.
-5. **Expansion of the search space:** begin with the nine current values and four named module slots; decide which additional hyperparameters/algorithm variants warrant the next contract version.
+5. **Exploration configurability:** epsilonNice is now included. Recommend a fixed implementation with LLM-configurable probability/steps and explicit optional selection, retaining the ordinary epsilon schedule and four generated-code slots. Decide whether epsilonNice source should also become a fifth slot; separately set tuning limits and the versioned activation/reset semantics. Reference defaults are not automatic Nd3G policy. Other algorithm extensions remain separate contract changes.
 6. **Inspection and result assurance:** choose the automated checks and any human-review triggers for captured output, and the strength needed before champion promotion. Compare structural/consistency checks with full replay or protected game/learning execution inside the sandbox. Specify what each establishes, what it does not and its throughput cost. TUI/reporting consumers remain external; exposure/authentication details still need design.
 7. **Data handoff and retention:** temporary MariaDB per simulation and a separate persistent database are decided. Specify the minimal data-only export, schema version compatibility, import identity mapping, inspection receipts, bounded quarantine retention and backup policy. Prefer an atomic accepted-result import through existing domain interfaces; do not adopt wholesale database restore as a shortcut.
 
 ## Verification of this documentation change
 
-- Reread current `dev` at release 0.1.0, confirmed PR #1 merged, and preserved its released changelog and repository instructions. This revision changes analysis documentation only.
+- Reread current `dev` at release 0.1.1, confirmed PRs #1 and #2 merged, and preserved released changelogs and repository instructions. Inspected pinned AI Hydra documentation, policy/algorithm, composition, stagnation, configuration, RNG and reporting code; no Hydra or Nd3G application tests were executed. This revision changes analysis documentation only.
 - Materialized current documentation and the pinned BMForge lock. Offline `verify` passed all local pin hashes; no skill/dependency/runtime changes were made. The normal update check remains unavailable in this connector-materialized workspace because it is not a Git checkout with the expected upstream cache. No claim of newest-upstream currency is made.
 - Mermaid parsing, relative links/heading targets, Markdown fences, changelog structure and an independent architecture review are checked against the final revision before publication. The PR records the exact validation outcome and any limits.
 - Prior-draft sources and review dates remain in the source register. This is not an application test result or evidence of real sandbox enforcement, secure import or runtime recovery. Proposed acceptance scenarios remain to be implemented and run in separately authorized work.

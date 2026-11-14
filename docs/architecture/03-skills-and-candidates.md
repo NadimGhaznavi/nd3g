@@ -23,6 +23,7 @@ Begin with the documented OpenAI-compatible llama.cpp interface. Verify native t
 | Runtime skill | Inputs | Output | Completion check |
 | --- | --- | --- | --- |
 | `configure-parameters` | Full parameter catalogue, baseline, prior comparisons, budget | Explicit complete parameter set and rationale | Schema, allowed ranges and cross-field rules pass. |
+| `configure-exploration` | Existing epsilon schedule, epsilonNice contract, baseline, episode budget | Explicit disabled/Nice selection, bounded `nice_p_value`/`nice_steps` and fixed policy references | Types/bounds, policy compatibility, gate reachability and controlled behavior fixtures checked; no generated exploration source by default. |
 | `write-model` | Model slot contract, baseline source, resolved dimensions | Model artifact or explicit reuse reference | Shape/device/finite-output checks and parameter bounds pass. |
 | `write-replay` | Transition/batch contract, capacity and sequence parameters | Replay artifact or reuse reference | Episode boundaries, buffer lifetime and memory bound checks pass. |
 | `write-trainer` | Model/replay contracts, parameter set, training budget | Trainer artifact or reuse reference | A bounded update works; target/loss/gradient behavior matches its declared algorithm. |
@@ -49,6 +50,7 @@ A candidate manifest is a domain record, not a loose directory of editable files
 
 - identity, revision and parent/baseline candidate;
 - complete resolved parameters and parameter-schema version;
+- explicit epsilonNice disabled/selected configuration, implementation digest, activation/reset contract and Nice RNG derivation, kept separate from the ordinary epsilon schedule;
 - exact artifact ID and content digest for every required module slot, including unchanged slots;
 - module-contract version and declared parameter consumption;
 - host/evaluator revision, fixed game/observation/action contract and scoring-policy version;
@@ -75,6 +77,12 @@ stateDiagram-v2
 
 This diagram describes candidate preparation only. `Frozen` completes preparation and preserves immutable content; it does not prevent later or repeated evaluation. Submission and evaluation never mutate the candidate or move it into a terminal run state. Each evaluation creates a separate `Run` with its own submission intent, idempotency key and lifecycle, as described in the runtime contract. An admitted candidate can have a failed run; a sent submission is not necessarily accepted; an accepted run is not completed. A repeated evaluation uses a new explicit run key and a fresh environment, retaining its relation to the same frozen candidate. Execution ending, artifacts being captured, inspection accepting the result, persistent import and disposal are separately recorded facts; a sandbox completion message does not make a result eligible for comparison.
 
+## Configurable exploration component
+
+Add epsilonNice as an optional post-epsilon exploration layer with an explicit versioned configuration, as described in [Exploration policy and epsilonNice](08-exploration-and-epsilon-nice.md). `nice_p_value` and `nice_steps` are proposed LLM-configurable values; static simulation code owns activation from episode scores, collision facts, action validation and telemetry. The ordinary epsilon schedule remains separate. The candidate records the component and policy even when disabled, while mutable detour/stagnation/RNG state is fresh per run.
+
+Configuration does not imply editable source. The recommendation retains a fixed application-owned epsilonNice implementation alongside the four writable slots below. Making exploration code itself a fifth named slot is an explicit alternative, requiring an approved contract and corresponding tests rather than an unrestricted policy hook.
+
 ## Writable module contracts
 
 The following contracts constrain behavior without prescribing exact Python signatures. Final signatures and approved dependency inventories are BMForge elaboration work.
@@ -96,7 +104,7 @@ These are the summary gates; [Generated-code risk mitigation](07-generated-code-
 
 1. **Non-executing checks:** complete manifest, exact field types, finite numbers, allowlisted slots/import inventory, syntax parsing, artifact size and canonical paths. These reduce accidents; they are not containment.
 2. **Restricted import and module checks:** import and exercise modules only inside the selected restriction boundary. Check interfaces, tensor dimensions, replay boundaries, numerical failures and tested forbidden side effects. Passing those tests is not proof of harmlessness.
-3. **Combined smoke evaluation:** all four modules plus parameters run together on bounded fixtures. Verify initialization, a learning cycle, action validity, baseline transition behavior and termination. Use the same declared runtime/dependency identity intended for the full simulation.
+3. **Combined smoke evaluation:** the four generated-module slots, ordinary epsilon policy, configured epsilonNice component and complete parameters run together on bounded fixtures. Verify initialization, a learning cycle, action validity, baseline transition behavior and termination. Use the same declared runtime/dependency identity intended for the full simulation.
 4. **Freeze and admit:** the trusted supervisor records test outcomes and binds them to exact artifact/contract/environment digests. Candidate-written output cannot issue its own admission record. Recheck those identities before activation in a fresh bounded run; do not overwrite installed application modules.
 
 Admission failures remain distinct from poor scientific results. Record syntax/contract/numerical/resource/policy failures and repair cost, without assigning them a made-up high score. The last completed champion remains available.

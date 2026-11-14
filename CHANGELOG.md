@@ -2,6 +2,19 @@
 
 ## [Unreleased]
 
+### Summary
+
+Added epsilonNice to the architecture as a configurable exploration-policy
+component, with AI Hydra source evidence, run-local state and validation.
+Configuration is distinguished from a possible additional generated-code slot.
+
+### Changed
+
+- Specify exploration-policy identity, settings, episode feedback, reset,
+  reporting and candidate provenance alongside the retained baseline policy.
+- Trace epsilonNice through analysis responsibilities, runtime skills, BMForge
+  adoption and acceptance tests without implementing or enabling it.
+
 ## [0.1.1] - 2026-11-14 @ 10:41
 
 ### Summary

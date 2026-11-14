@@ -2,13 +2,17 @@
 
 [Overview](README.md)
 
-Initial inspection on 2026-11-09; second-draft reporting and risk review on 2026-11-10; disposable-simulation revision on 2026-11-14. Repository links below are pinned to exact revisions so the proposal does not silently change with upstream code. Source code establishes the observed baseline; recommendations in this proposal are not claims that those capabilities already exist.
+Initial inspection on 2026-11-09; second-draft reporting and risk review on 2026-11-10; disposable-simulation and epsilonNice revisions on 2026-11-14. Repository links below are pinned to exact revisions so the proposal does not silently change with upstream code. Source code establishes the observed baseline; recommendations in this proposal are not claims that those capabilities already exist.
 
 ## Latest user decisions
 
 The 2026-11-14 discussion specifies a disposable simulation execution environment containing the simulation server and temporary MariaDB, artifacts inspected before import into the persistent database, and ZMQ publication from static non-LLM-writable simulation code to consumers in separate external processes. These are user requirements, not claims inferred from legacy code. No sandbox technology or particular inspection mechanism was selected.
 
+The later 2026-11-14 request adds epsilonNice as a configurable component and explicitly requests a PR. It does not specify whether exploration source becomes an additional LLM-writable slot; this proposal identifies that choice instead of assuming it.
+
 ## Nd3G and BMForge
+
+- EpsilonNice revision base: Nd3G release 0.1.1, [`80e64739574e23c4daa845f821769819d2de9aa8`](https://github.com/NadimGhaznavi/nd3g/commit/80e64739574e23c4daa845f821769819d2de9aa8), current `dev` when inspected. [PR #2](https://github.com/NadimGhaznavi/nd3g/pull/2) is merged. The prior release sections and all existing non-documentation content are preserved.
 
 - Current revision base: Nd3G release 0.1.0, [`05bf7d7d34d5a34404927964aac0a5ced0b9191c`](https://github.com/NadimGhaznavi/nd3g/commit/05bf7d7d34d5a34404927964aac0a5ced0b9191c), shared by `dev` and `main` when inspected on 2026-11-14. [PR #1](https://github.com/NadimGhaznavi/nd3g/pull/1) is merged. Current architecture files, project instructions, BMForge lock and released changelog were reread; release history and pinned skills remain unchanged. Earlier repository observations below retain their original revision scope.
 
@@ -44,6 +48,17 @@ Revision `2bd021400d11017975a984ca9ac042b958349097`:
 - [RNNModel](https://github.com/NadimGhaznavi/snake-lab/blob/2bd021400d11017975a984ca9ac042b958349097/snakelab/nn/RNNModel.py), [Trainer](https://github.com/NadimGhaznavi/snake-lab/blob/2bd021400d11017975a984ca9ac042b958349097/snakelab/nn/Trainer.py), [ReplayMemory](https://github.com/NadimGhaznavi/snake-lab/blob/2bd021400d11017975a984ca9ac042b958349097/snakelab/nn/ReplayMemory.py): current sequence/action shapes, Double DQN implementation, episode-aware batches and buffer lifetime.
 - [GameRules](https://github.com/NadimGhaznavi/snake-lab/blob/2bd021400d11017975a984ca9ac042b958349097/snakelab/game/GameRules.py), [RewardConfig](https://github.com/NadimGhaznavi/snake-lab/blob/2bd021400d11017975a984ca9ac042b958349097/snakelab/game/RewardConfig.py): score increments for food separately from reward values; reward extraction seam.
 - [Client](https://github.com/NadimGhaznavi/snake-lab/tree/2bd021400d11017975a984ca9ac042b958349097/snakelab/client) and [protocol](https://github.com/NadimGhaznavi/snake-lab/blob/2bd021400d11017975a984ca9ac042b958349097/snakelab/zmq/Protocol.py): reuse starting point and protocol-specific coupling, not a commitment to preserve legacy wire compatibility.
+
+## AI Hydra epsilonNice
+
+The requested `ai-hydra` repository redirects to `NadimGhaznavi/ai_hydra`. Inspected main at `b348e6be6d0f2458bc9401ed01035e85fa09527f` on 2026-11-14:
+
+- [epsilonNice guide](https://github.com/NadimGhaznavi/ai_hydra/blob/b348e6be6d0f2458bc9401ed01035e85fa09527f/pages/epsilon-nice.md) and [policy settings](https://github.com/NadimGhaznavi/ai_hydra/blob/b348e6be6d0f2458bc9401ed01035e85fa09527f/pages/settings.md): conditional safe detours, probability/length settings and MCTS context.
+- [BehaviourPolicy](https://github.com/NadimGhaznavi/ai_hydra/blob/b348e6be6d0f2458bc9401ed01035e85fa09527f/ai_hydra/nnet/Policy/BehaviourPolicy.py) and [EpsilonNiceAlgo](https://github.com/NadimGhaznavi/ai_hydra/blob/b348e6be6d0f2458bc9401ed01035e85fa09527f/ai_hydra/nnet/EpsilonNiceAlgo.py): enable/gate/next-step arming, remaining steps, safe-alternative selection and precise counter semantics.
+- [TrainMgr](https://github.com/NadimGhaznavi/ai_hydra/blob/b348e6be6d0f2458bc9401ed01035e85fa09527f/ai_hydra/nnet/TrainMgr.py), [HydraMgr](https://github.com/NadimGhaznavi/ai_hydra/blob/b348e6be6d0f2458bc9401ed01035e85fa09527f/ai_hydra/server/HydraMgr.py), [EpsilonAlgo](https://github.com/NadimGhaznavi/ai_hydra/blob/b348e6be6d0f2458bc9401ed01035e85fa09527f/ai_hydra/nnet/EpsilonAlgo.py) and [HydraPolicy](https://github.com/NadimGhaznavi/ai_hydra/blob/b348e6be6d0f2458bc9401ed01035e85fa09527f/ai_hydra/nnet/Policy/HydraPolicy.py): score-based stagnation, composition, episode update order, epsilon snap-to-zero and reset-hook limits.
+- [DNNet](https://github.com/NadimGhaznavi/ai_hydra/blob/b348e6be6d0f2458bc9401ed01035e85fa09527f/ai_hydra/constants/DNNet.py), [SimCfg](https://github.com/NadimGhaznavi/ai_hydra/blob/b348e6be6d0f2458bc9401ed01035e85fa09527f/ai_hydra/utils/SimCfg.py) and [HydraRng](https://github.com/NadimGhaznavi/ai_hydra/blob/b348e6be6d0f2458bc9401ed01035e85fa09527f/ai_hydra/nnet/HydraRng.py): settings/defaults and deterministic stream derivation. Coercion does not itself establish Nd3G admission bounds.
+- [GameLogic](https://github.com/NadimGhaznavi/ai_hydra/blob/b348e6be6d0f2458bc9401ed01035e85fa09527f/ai_hydra/game/GameLogic.py), [HydraSnapshot](https://github.com/NadimGhaznavi/ai_hydra/blob/b348e6be6d0f2458bc9401ed01035e85fa09527f/ai_hydra/utils/HydraSnapshot.py), [HydraClient](https://github.com/NadimGhaznavi/ai_hydra/blob/b348e6be6d0f2458bc9401ed01035e85fa09527f/ai_hydra/client/HydraClient.py): immediate-collision predicate and reporting/TUI consumption.
+- [Inspected regression tests](https://github.com/NadimGhaznavi/ai_hydra/blob/b348e6be6d0f2458bc9401ed01035e85fa09527f/tests/test_rnn_regression.py): no focused epsilonNice coverage was found. Source inspection is not proof of tested runtime behavior.
 
 ## LlamaSrv
 
