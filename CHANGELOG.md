@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-11-14 @ 12:15
+
 ## [0.2.1] - 2026-11-14 @ 12:03
 
 ## [0.2.0] - 2026-11-14 @ 11:45
@@ -24,6 +26,7 @@ generated-code slot.
   Minimal Mistakes theme, Mermaid rendering, MyCount and English metadata.
 - Add the owner-supplied `pages/images/nd3g.png` project logo, shared by the
   masthead and documentation homepage.
+- Fixed sidebar.
 
 ### Changed
 
