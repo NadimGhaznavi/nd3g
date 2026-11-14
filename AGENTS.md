@@ -7,7 +7,7 @@
 - Project domain: `nd3g.osoyalce.com`, recorded in `CNAME`.
 - Application metadata: `nd3g/constants/DNd3G.py`; CMDB subtype: `Application`.
 - Selected skills: `bmforge-project`, `bmforge-constants`,
-  `bmforge-localization` and `bmforge-installation`. No optional skills selected.
+  `bmforge-localization`, `bmforge-installation` and `bmforge-github-pages`.
 
 The repository currently contains the initial development scaffold. Game
 behaviour, LLM integration and runtime requirements remain to be specified.

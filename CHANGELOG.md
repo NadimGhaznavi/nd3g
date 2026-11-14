@@ -2,6 +2,17 @@
 
 ## [Unreleased]
 
+### Summary
+
+Added pinned BMForge GitHub Pages guidance and templates for future
+documentation-site work.
+
+### Added
+
+- Install `bmforge-github-pages` specification 0.1.0 from BMForge revision
+  `29a100c39997349ecfd40e190319aeb5018ffab8` and record it in the project skill
+  selection and lock file. Site setup and publication remain separate work.
+
 ## [0.1.1] - 2026-11-14 @ 10:41
 
 ### Summary
