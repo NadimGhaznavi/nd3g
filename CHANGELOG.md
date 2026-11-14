@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-14 @ 11:45
+
 ### Summary
 
 Prepared Nd3G's documentation site with the shared dark theme, a transparent
