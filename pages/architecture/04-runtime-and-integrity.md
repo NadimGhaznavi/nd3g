@@ -1,6 +1,13 @@
-# Runtime boundaries and execution
+---
+title: "Runtime boundaries and execution"
+lang: en
+locale: en-US
+language_name: English
+translation_key: nd3g-architecture-runtime-and-integrity
+permalink: /pages/architecture/runtime-and-integrity/
+---
 
-[Overview](README.md) · [BMForge adoption](05-bmforge-and-delivery.md)
+[Overview]({{ site.baseurl }}{% link pages/architecture/index.md %}) · [BMForge adoption]({{ site.baseurl }}{% link pages/architecture/05-bmforge-and-delivery.md %})
 
 ## Process and component view
 
@@ -52,9 +59,9 @@ Future `scripts/services start` starts reporting then controller; `stop` stops c
 ## Disposable run lifecycle and data ownership
 
 1. **Reserve outside the sandbox.** Persist run ID, candidate digest, execution-policy version and submission key in the persistent journal before launching anything. Initially allow one active simulation and a bounded queue. This journal survives loss of the entire environment.
-2. **Create a clean environment.** Provision the approved runtime and exact tested module bytes, with a new temporary MariaDB data directory and run-local credentials. Initialize the same approved simulation schema/migrations and database interfaces used by the simulation. Do not clone production data, reuse another run's database, or expose persistent credentials. Each repeated evaluation is a new environment with fresh weights, replay, optimizer and exploration state.
+2. **Create a clean environment.** Provision the approved runtime and exact tested module bytes, with a new temporary MariaDB data directory and run-local credentials. Initialize the same approved simulation schema/migrations and database interfaces used by the simulation. Do not clone production data, reuse another run's database, or expose persistent credentials. Each repeated evaluation is a new environment with fresh weights, replay, optimizer and exploration state, including epsilonNice enable/detour/stagnation state and its seeded RNG stream.
 3. **Run and observe.** Static simulation code runs the game, invokes the named modules, writes temporary results and publishes game state. External TUI/reporting consumers observe bounded ZMQ messages. The external lifecycle owner records launch identity, limits and independently observed exit/timeout status.
-4. **Capture artifacts.** Stop simulation writers, finalize or snapshot temporary data consistently and produce a bounded export using application-owned code. Capture the run manifest, selected table data, episode/action evidence, metrics, winning frames and bounded diagnostics into a host-owned quarantine area. Record receipt and a digest outside the sandbox, then make the captured copy immutable. Files must be ordinary permitted outputs, not symlinks or paths that cause traversal. A digest detects later changes; it does not prove that sandbox output is true.
+4. **Capture artifacts.** Stop simulation writers, finalize or snapshot temporary data consistently and produce a bounded export using application-owned code. Capture the run manifest, selected table data, episode/action evidence, epsilonNice configuration/intervention totals and seed provenance, metrics, winning frames and bounded diagnostics into a host-owned quarantine area. Record receipt and a digest outside the sandbox, then make the captured copy immutable. Files must be ordinary permitted outputs, not symlinks or paths that cause traversal. A digest detects later changes; it does not prove that sandbox output is true.
 5. **Inspect before accepting.** An external activity checks identity, provenance, schema, counts, bounds, completeness, cross-record invariants and the selected score-verification policy. Record acceptance or rejection against that exact bundle. A sandbox's own test/completion flag cannot issue this decision. The inspection mechanism and its assurance level are still to be selected; routine decisions may be automated under an approved policy. Do not silently add a mandatory human review of every simulation.
 6. **Import accepted data.** Use host-owned domain operations to map accepted data into persistent records, with one atomic transaction and an idempotent receipt keyed by run ID plus bundle digest. The same key/digest returns the existing receipt; a different digest is a conflict. Do not restore a candidate-supplied SQL dump, run its DDL/triggers/procedures, attach its database files to the persistent server or import Python objects. The temporary database reuses the simulation environment; the import boundary is a narrow data contract, not a second simulation database implementation.
 7. **Dispose.** After a durable accepted-import receipt, or a durable rejection/failure record with the chosen retained evidence, remove the environment, temporary database, run-local credentials and mounts. Confirm cleanup separately. Only accepted imported results enter champion comparison. A cleanup failure does not roll back an already committed import; it blocks another launch until reconciled and remains visible in reporting.
@@ -109,14 +116,14 @@ Required restriction properties to specify and test:
 - no authority over external validation/import receipts, persistent results, champion selection or cleanup;
 - bounded whole-environment shutdown, including descendants and temporary database, with cleanup confirmation.
 
-Select the containment mechanism from the [practical options](07-generated-code-risk.md#practical-containment-options) during BMForge elaboration. GPU exposure, native code and driver/kernel vulnerabilities remain material. Ordinary process memory limits do not promise GPU-memory containment. Admission tests run inside fresh environments under the selected policy from the first import; never test candidate imports on the host. Keep code mutation disabled if required controls or the accepted inspection policy are absent. These are design gates, not evidence that a sandbox has already been built or tested.
+Select the containment mechanism from the [practical options]({{ site.baseurl }}{% link pages/architecture/07-generated-code-risk.md %}#practical-containment-options) during BMForge elaboration. GPU exposure, native code and driver/kernel vulnerabilities remain material. Ordinary process memory limits do not promise GPU-memory containment. Admission tests run inside fresh environments under the selected policy from the first import; never test candidate imports on the host. Keep code mutation disabled if required controls or the accepted inspection policy are absent. These are design gates, not evidence that a sandbox has already been built or tested.
 
 
 ## Scoring, reporting and reproducibility
 
 The initial champion rule remains Ax3l's: two completed, comparable runs with inspected, imported high scores; promote only if `candidate.high_score > champion.high_score`. Ties retain the champion. A failure, interruption or invalid run never counts as a zero-score completed run. Preserve episode counts, total steps, rewards, losses, high score, winning snapshot/frames and golden-history reporting where applicable, adding candidate/module/skill identities and failure categories.
 
-Learning reward and food-count score are separate. A reward function cannot improve the experiment merely by returning larger numbers. Likewise, generated modules cannot increase the episode budget or change the board to manufacture higher records.
+Learning reward and food-count score are separate. A reward function cannot improve the experiment merely by returning larger numbers. Likewise, generated modules cannot increase the episode budget or change the board to manufacture higher records. epsilonNice may change the selected action but not these rules. Record the final executed action, not the pre-intervention suggestion, in training/replay evidence. Reports identify whether Nice was configured, eligible and actually intervened, so a combined model/policy score is not mistaken for the neural policy’s unaided result.
 
 A single-run maximum is noisy and benefits from a larger search/episode budget. Keep it for continuity, but label it a best observed score rather than proof of general improvement. Supplement reports with seed, episode budget, parameter/code differences, compute cost and failure/repair counts. A later confirmation cohort with fixed seeds and repeated runs can assess robustness without silently replacing the existing champion rule. Recommended, pending confirmation against Ax3l's seed-rotation behavior: establish a fresh comparable baseline when rotating seeds. Do not compare across changed rules or budgets as if they were the same experiment.
 
@@ -124,7 +131,7 @@ Record software/dependency versions, hardware/device details, seed derivation, m
 
 ## Integrated web reporting is required
 
-Ax3l's useful precedent is an application-owned reporting server that exposes real system state and links directly from overview/event records to configuration, prompt/reply and simulation details. Its HTTP process is separate, but its reports are tightly connected to application records and live control queries. Some aggregate views are cached and refreshed after 60 seconds; do not mistake that cadence for a guarantee of live state. The [source register](06-sources.md#ax3l-reporting-evidence-for-the-second-draft) identifies the inspected code.
+Ax3l's useful precedent is an application-owned reporting server that exposes real system state and links directly from overview/event records to configuration, prompt/reply and simulation details. Its HTTP process is separate, but its reports are tightly connected to application records and live control queries. Some aggregate views are cached and refreshed after 60 seconds; do not mistake that cadence for a guarantee of live state. The [source register]({{ site.baseurl }}{% link pages/architecture/06-sources.md %}#ax3l-reporting-evidence-for-the-second-draft) identifies the inspected code.
 
 Nd3G should adopt that integration without copying Ax3l's cross-project SQL coupling or building an independent dashboard data model. Start with ordinary server-rendered pages and bounded queries, using the BMForge HTTP component. One `InspectExperiment` activity composes read-only application domain interfaces and live service observations. Do not add a reporting broker, projection daemon or separate visualization service.
 
@@ -133,7 +140,7 @@ Nd3G should adopt that integration without copying Ax3l's cross-project SQL coup
 | View | Essential information and navigation |
 | --- | --- |
 | System overview | Controller/inference availability, sandbox and temporary DB lifecycle, current experiment and stage, active/queued run, selected champion, outstanding failure and observation times. |
-| Experiment and run detail | Complete resolved configuration, candidate/module digests, seed and budget, progress, accepted result, comparison decision and winning-game evidence, plus separate execution/inspection/import/cleanup status. |
+| Experiment and run detail | Complete resolved configuration, candidate/module digests, seed and budget, progress, ordinary epsilon and epsilonNice eligibility/interventions, accepted result, comparison decision and winning-game evidence, plus separate execution/inspection/import/cleanup status. |
 | Candidate and validation detail | Module source/diff as escaped text, parent candidate, skill/model identity, test stage/results, bounded diagnostics, repair attempts and rejection reason. |
 | Filterable event history | Correlated experiment/candidate/run/task IDs, state transitions and timestamps, with links to exact evidence rather than only an undifferentiated log tail. |
 | Dependency and failure detail | Timeouts, unavailable services, last persisted progress and resource/test failures. A stopped controller must remain diagnosable from available history. |
@@ -163,3 +170,7 @@ Reuse the existing board, plots and run controls. Likely changes include endpoin
 Live messages are disposable: bounded queues, documented overflow policy, publisher-instance identity and sequence numbers aid diagnosis. A sequence cannot reveal drops occurring before numbering unless local drop counters are also exposed. Completion notifications prompt a durable query. A TUI disconnect or slow subscriber must not stall the experiment.
 
 The TUI specializes in real-time board/learning views and existing run controls; the required web server specializes in navigable state, history and troubleshooting evidence. Both consume the same domain meanings. Browser-based mutation controls are a later decision, not implied by a reporting requirement.
+
+---
+
+[Documentation index]({{ site.baseurl }}{% link index.md %})

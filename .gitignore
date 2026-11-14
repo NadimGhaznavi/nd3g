@@ -70,7 +70,12 @@ instance/
 .scrapy
 
 # Sphinx documentation
-docs/_build/
+pages/_build/
+
+# Jekyll documentation site
+_site/
+.jekyll-cache/
+.jekyll-metadata
 
 # PyBuilder
 .pybuilder/
