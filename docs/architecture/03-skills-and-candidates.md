@@ -59,7 +59,7 @@ A candidate manifest is a domain record, not a loose directory of editable files
 
 Retain exact module bytes and skill inputs alongside digests. A hash identifies content but does not authenticate an untrusted writer or prove safety. Artifact access, ownership and atomic finalization still matter. Any change after validation creates a new revision and invalidates the affected evidence. Changing a model or replay contract rechecks trainer integration too.
 
-The controller submits only an immutable candidate reference plus an idempotency key. The simulation service resolves that reference from application-controlled storage, verifies its digest and validation/policy compatibility, and rejects incomplete content. Do not load Python from a remote URL or a writable developer checkout. In the initial same-host design, a finalized read-only artifact store avoids a new upload service. Remote execution would need an explicit transfer protocol.
+The controller submits only an immutable candidate reference plus an idempotency key. The external run-lifecycle activity resolves that reference from application-controlled storage, verifies its digest and validation/policy compatibility, and copies the exact admitted content into a fresh simulation environment. The simulation receives only its run inputs, not access to the whole artifact store. Do not load Python from a remote URL or a writable developer checkout. In the initial same-host design, a finalized read-only artifact store avoids a new upload service. Remote execution would need an explicit transfer protocol.
 
 ```mermaid
 stateDiagram-v2
@@ -73,7 +73,7 @@ stateDiagram-v2
     Frozen --> [*]
 ```
 
-This diagram describes candidate preparation only. `Frozen` completes preparation and preserves immutable content; it does not prevent later or repeated evaluation. Submission and evaluation never mutate the candidate or move it into a terminal run state. Each evaluation creates a separate `Run` with its own submission intent, idempotency key and lifecycle, as described in the runtime contract. An admitted candidate can have a failed run; a sent submission is not necessarily accepted; an accepted run is not completed. A repeated evaluation uses a new explicit run key and retains its relation to the same frozen candidate.
+This diagram describes candidate preparation only. `Frozen` completes preparation and preserves immutable content; it does not prevent later or repeated evaluation. Submission and evaluation never mutate the candidate or move it into a terminal run state. Each evaluation creates a separate `Run` with its own submission intent, idempotency key and lifecycle, as described in the runtime contract. An admitted candidate can have a failed run; a sent submission is not necessarily accepted; an accepted run is not completed. A repeated evaluation uses a new explicit run key and a fresh environment, retaining its relation to the same frozen candidate. Execution ending, artifacts being captured, inspection accepting the result, persistent import and disposal are separately recorded facts; a sandbox completion message does not make a result eligible for comparison.
 
 ## Writable module contracts
 
@@ -88,7 +88,7 @@ The following contracts constrain behavior without prescribing exact Python sign
 
 **Parameter/code consistency matters.** For each tunable field, declare which module or host policy consumes it. Host-owned constructor inputs and behavioral contract tests should prevent accidental omission. No simple static scan can prove that arbitrary Python genuinely uses a hyperparameter. Record a module's declared consumption, test meaningful observable constraints and reject a candidate when its declared schema is incompatible. A new algorithm that removes or redefines a parameter requires an explicit contract revision, rather than pretending to tune an ignored value.
 
-The protected host owns observation encoding, action vocabulary, game rules, seed derivation, experiment budgets, authoritative metrics, result persistence, validators and tool permissions. The first reward extraction must keep the existing transition/score behavior unchanged when the baseline reward implementation is selected.
+Static application code owns observation encoding, action vocabulary, game rules, the ZMQ publisher, simulation database access and export. These files are outside the LLM’s write authority, even though they execute inside the sandbox. External controller/inspection code owns seed allocation, experiment budgets, candidate admission, accepted-result import, champion decisions and tool permissions. Source edit restrictions do not imply that arbitrary Python sharing a process cannot affect runtime state; the result inspection policy addresses that distinct risk. The first reward extraction must keep the existing transition/score behavior unchanged when the baseline reward implementation is selected.
 
 ## Admission stages
 

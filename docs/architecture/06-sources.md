@@ -2,9 +2,15 @@
 
 [Overview](README.md)
 
-Initial inspection on 2026-11-09; second-draft reporting and risk review on 2026-11-10. Repository links below are pinned to exact revisions so the proposal does not silently change with upstream code. Source code establishes the observed baseline; recommendations in this proposal are not claims that those capabilities already exist.
+Initial inspection on 2026-11-09; second-draft reporting and risk review on 2026-11-10; disposable-simulation revision on 2026-11-14. Repository links below are pinned to exact revisions so the proposal does not silently change with upstream code. Source code establishes the observed baseline; recommendations in this proposal are not claims that those capabilities already exist.
+
+## Latest user decisions
+
+The 2026-11-14 discussion specifies a disposable simulation execution environment containing the simulation server and temporary MariaDB, artifacts inspected before import into the persistent database, and ZMQ publication from static non-LLM-writable simulation code to consumers in separate external processes. These are user requirements, not claims inferred from legacy code. No sandbox technology or particular inspection mechanism was selected.
 
 ## Nd3G and BMForge
+
+- Current revision base: Nd3G release 0.1.0, [`05bf7d7d34d5a34404927964aac0a5ced0b9191c`](https://github.com/NadimGhaznavi/nd3g/commit/05bf7d7d34d5a34404927964aac0a5ced0b9191c), shared by `dev` and `main` when inspected on 2026-11-14. [PR #1](https://github.com/NadimGhaznavi/nd3g/pull/1) is merged. Current architecture files, project instructions, BMForge lock and released changelog were reread; release history and pinned skills remain unchanged. Earlier repository observations below retain their original revision scope.
 
 - Publication base: Nd3G `dbf5e181b52a493110c919dd5033318ab4d969fa`, rechecked before creating the approved `dev` branch. Its added [design ideas](https://github.com/NadimGhaznavi/nd3g/blob/dbf5e181b52a493110c919dd5033318ab4d969fa/notes/design-ideas.md) support focused context, explicit signatures/examples and bounded validation/repair. Sampling settings and model-capability claims in those notes are hypotheses to measure on the actual deployment, not adopted defaults or guarantees. Its existing changelog entry and notes are preserved.
 - Nd3G `1d7e07fff91f39791cff8e45a8b975d0c1e69f54`: [project instructions](https://github.com/NadimGhaznavi/nd3g/blob/1d7e07fff91f39791cff8e45a8b975d0c1e69f54/AGENTS.md), [BMForge lock](https://github.com/NadimGhaznavi/nd3g/blob/1d7e07fff91f39791cff8e45a8b975d0c1e69f54/.agents/bmforge/lock.json), [project skill](https://github.com/NadimGhaznavi/nd3g/blob/1d7e07fff91f39791cff8e45a8b975d0c1e69f54/.agents/skills/bmforge-project/SKILL.md). Basis for existing scaffold, selected skills, authorization boundary and changelog discipline.
