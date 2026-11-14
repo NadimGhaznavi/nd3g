@@ -1,6 +1,13 @@
-# Mitigating risk from generated simulation code
+---
+title: "Mitigating risk from generated simulation code"
+lang: en
+locale: en-US
+language_name: English
+translation_key: nd3g-architecture-generated-code-risk
+permalink: /pages/architecture/generated-code-risk/
+---
 
-[Overview](README.md) · [Candidate contracts](03-skills-and-candidates.md) · [Runtime boundaries](04-runtime-and-integrity.md)
+[Overview]({{ site.baseurl }}{% link pages/architecture/index.md %}) · [Candidate contracts]({{ site.baseurl }}{% link pages/architecture/03-skills-and-candidates.md %}) · [Runtime boundaries]({{ site.baseurl }}{% link pages/architecture/04-runtime-and-integrity.md %})
 
 ## Whole-simulation sandbox, with tests before activation
 
@@ -33,7 +40,7 @@ The host chooses and versions the tests. The LLM may propose extra tests, but ca
 | 1. Artifact preflight, without import | Allowed slot/path, source-size limit, syntax parse, declared dependency/import inventory, complete parameter/schema resolution, exact artifact digest. | Reject before execution with a precise syntax/contract error. A clean scan is not a safety certificate. |
 | 2. Import and interface tests | Import inside the disposable test environment; verify required entry points, construction/reset behavior, signatures and permitted return structures. Enforce short import/startup deadlines. | Import error, missing interface or timeout is a rejected revision. |
 | 3. Module behavior tests | Exercise the per-slot cases below, including edge cases and fixed-seed regressions. | Record the failed invariant and bounded diagnostic output; preserve the last good candidate. |
-| 4. Combined smoke run | Wire the actual four modules and full parameter set into a small episode/step budget. Check observation/action compatibility, one or more training updates, finite outputs, cleanup and resource use. | Reject incompatible combinations even when each module passed individually. |
+| 4. Combined smoke run | Wire the four generated-module slots, ordinary epsilon policy, configured epsilonNice component and full parameter set into a small episode/step budget. Check observation/action compatibility, one or more training updates, finite outputs, cleanup and resource use. | Reject incompatible combinations even when each module passed individually. |
 | 5. Admission and fresh execution | Bind results to candidate, fixtures, host/evaluator, runtime/dependency and restriction-policy digests. Verify those identities before launching a fresh full simulation environment. | Changed bytes or incompatible environment require retesting. No live-service hot reload. |
 
 Suggested per-module cases are behavioral contracts rather than a mandated testing framework:
@@ -42,6 +49,7 @@ Suggested per-module cases are behavioral contracts rather than a mandated testi
 - **ReplayMemory:** empty/insufficient history, terminal transition, short episode, capacity overflow and multiple episodes. Returned sequences must not cross episode boundaries; check batch shapes, reproducible sampling, buffer ownership and capacity accounting.
 - **Trainer:** a controlled batch produces a bounded update with finite loss and parameters; warm-up is explicit; reset starts cleanly; target/gradient/update behavior meets the selected algorithm contract. A tiny learning fixture can detect obvious no-op trainers, but does not prove the algorithm will improve Snake scores.
 - **RewardFunction:** deterministic fixtures for food, wall/self collision, ordinary movement and move-limit termination return finite scalars. Input transition facts remain unchanged. Tests check the declared reward contract without allowing the function to change authoritative score or termination.
+- **epsilonNice configuration:** use controlled RNG and score/gate fixtures for disabled passthrough, next-step arming, exact detour attempts, safe-alternative/fallback action selection, stagnation transitions and run/episode reset semantics. Validate replay uses the executed action. This tests a fixed configurable component, not an implicitly authorized new generated-code slot; see [the detailed contract]({{ site.baseurl }}{% link pages/architecture/08-exploration-and-epsilon-nice.md %}#acceptance-fixtures).
 - **Combined candidate:** baseline parity fixtures, observation/action range checks, repeated initialization, a bounded learning cycle, termination and cancellation. Test the actual parameter combination, not just default constructor values.
 
 Add a small set of **execution-policy tests** to the harness: attempt to read a protected fixture, write outside scratch, open a disallowed network connection, connect to the persistent DB, spawn excess descendants, exhaust a defined resource budget and hang. Confirm the intended denial/termination and the recorded result on the actual host. These probe chosen controls; they are not proof that every escape is impossible. Do not run intentionally destructive probes against real user data.
@@ -74,10 +82,14 @@ Read-only evaluator source is insufficient if imported generated Python shares t
 
 The whole-simulation sandbox is now decided; the result inspection mechanism is not. Inspect captured manifests, table data, counts, numeric bounds and completeness before persistent import. Those checks detect malformed or inconsistent output, not every fabricated score. A stronger inspection can replay complete action evidence for every scored episode using fixed seeds/rules and derive scores independently. That validates legal trajectories, but does not alone establish that the declared model or training procedure generated the actions. Alternatively, isolate the static game/evaluator from the learning code inside the disposable environment and exchange bounded data-only observations/actions. Its enforcement and throughput still need validation. Keep the selected assurance level visible in result metadata, and do not turn either option into an unapproved mandatory redesign.
 
-External application code owns persistent result import and champion comparison. Temporary MariaDB, static publisher output and exported counters remain provisional until inspected under the selected policy. Reusing the same schema does not make a raw SQL dump safe to restore. Import only allowlisted data with host-owned SQL, validating IDs, relationships, lengths and totals; reject executable objects, unexpected tables and arbitrary filesystem references. Keep persistent credentials outside the sandbox and make the import atomic/idempotent, as specified in the [lifecycle contract](04-runtime-and-integrity.md#disposable-run-lifecycle-and-data-ownership). Use a bounded data-only exchange format; do not unpickle candidate-produced objects in a trusted process. PyTorch checkpoint loading also needs deliberate restrictions: keep model-code loading inside the environment and use appropriate restricted state-dictionary handling when needed. A filename or a `weights_only` setting alone is not a general guarantee against resource exhaustion or unsafe surrounding code.
+External application code owns persistent result import and champion comparison. Temporary MariaDB, static publisher output and exported counters remain provisional until inspected under the selected policy. Reusing the same schema does not make a raw SQL dump safe to restore. Import only allowlisted data with host-owned SQL, validating IDs, relationships, lengths and totals; reject executable objects, unexpected tables and arbitrary filesystem references. Keep persistent credentials outside the sandbox and make the import atomic/idempotent, as specified in the [lifecycle contract]({{ site.baseurl }}{% link pages/architecture/04-runtime-and-integrity.md %}#disposable-run-lifecycle-and-data-ownership). Use a bounded data-only exchange format; do not unpickle candidate-produced objects in a trusted process. PyTorch checkpoint loading also needs deliberate restrictions: keep model-code loading inside the environment and use appropriate restricted state-dictionary handling when needed. A filename or a `weights_only` setting alone is not a general guarantee against resource exhaustion or unsafe surrounding code.
 
 ## Stop criteria and remaining risk
 
 Do not activate a candidate after failed/absent checks, changed artifacts, unavailable required controls or an unresolved resource/score-integrity violation. Stop the entire environment and descendants, retain bounded diagnostic evidence, record the cause and dispose temporary state. Rejected or incomplete results never become completed scientific runs. Failed cleanup must be reconciled before the next launch; the previous champion remains intact. Operator review is for changing the accepted contracts or execution policy; routine passing candidates can still run automatically within an approved experiment policy.
 
 Testing reduces the chance of bad behavior. Containment reduces the damage if it occurs. Trusted evaluation reduces the chance of a false scientific result. Residual kernel/driver/runtime vulnerabilities and untested behavior remain, so the proposal makes those limits visible instead of claiming that tests prove arbitrary code safe.
+
+---
+
+[Documentation index]({{ site.baseurl }}{% link index.md %})

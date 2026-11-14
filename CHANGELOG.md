@@ -2,6 +2,45 @@
 
 ## [Unreleased]
 
+### Summary
+
+Prepared Nd3G's documentation site with the shared dark theme, a transparent
+project logo, English metadata and GitHub Pages build workflow. The migrated
+architecture proposal includes configurable epsilonNice exploration with source
+evidence, run-local state and validation, distinct from a possible additional
+generated-code slot.
+
+### Added
+
+- Install `bmforge-github-pages` specification 0.1.0 from BMForge revision
+  `29a100c39997349ecfd40e190319aeb5018ffab8` and record it in the project skill
+  selection and lock file.
+- Add the BMForge-standard documentation homepage, Jekyll configuration and
+  main-only GitHub Pages workflow for `nd3g.osoyalce.com`, with the shared
+  Minimal Mistakes theme, Mermaid rendering, MyCount and English metadata.
+- Add the owner-supplied `pages/images/nd3g.png` project logo, shared by the
+  masthead and documentation homepage.
+
+### Changed
+
+- Move the existing architecture proposal from `docs/architecture/` to
+  `pages/architecture/`, preserving its content and diagrams while adding
+  baseurl-aware navigation, stable page URLs and translation keys.
+- Keep the repository README concise, exclude application and local tooling
+  from site output, and ignore generated Jekyll files.
+- Specify exploration-policy identity, settings, episode feedback, reset,
+  reporting and candidate provenance alongside the retained baseline policy.
+- Trace epsilonNice through analysis responsibilities, runtime skills, BMForge
+  adoption and acceptance tests without implementing or enabling it.
+
+### Fixed
+
+- Replace the logo's baked-in checkerboard with transparency, including the
+  handle opening and background gaps, while retaining its original dimensions
+  and artwork.
+- Resolve the changelog merge conflict while preserving the GitHub Pages and
+  epsilonNice entries under one unreleased summary.
+
 ## [0.1.1] - 2026-11-14 @ 10:41
 
 ### Summary
